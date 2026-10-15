@@ -1,247 +1,232 @@
-var canvas = document.getElementById("starfield");
+
+const canvas = document.getElementById("starfield");
+const context = canvas.getContext("2d");
+const button = document.getElementById("valentinesButton");
+
+// CONFIGURACION DEL CANVAS
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-var context = canvas.getContext("2d");
-var stars = 500;
-var colorrange = [0, 60, 240];
-var starArray = [];
+// ESTRELLAS ROSADAS Y BLANCAS
+const stars = 500;
+const colorrange = [320, 340, 0, 280];
+const starArray = [];
 
-function getRandom(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+function crearEstrellas() {
+    starArray.length = 0;
+
+    for (let i = 0; i < stars; i++) {
+        starArray.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            radius: Math.random() * 1.2,
+            hue: colorrange[
+                Math.floor(Math.random() * colorrange.length)
+            ],
+            sat: 50 + Math.random() * 50,
+            opacity: Math.random()
+        });
+    }
 }
 
-// Initialize stars with random opacity values
-for (var i = 0; i < stars; i++) {
-    var x = Math.random() * canvas.offsetWidth;
-    var y = Math.random() * canvas.offsetHeight;
-    var radius = Math.random() * 1.2;
-    var hue = colorrange[getRandom(0, colorrange.length - 1)];
-    var sat = getRandom(50, 100);
-    var opacity = Math.random();
-    starArray.push({ x, y, radius, hue, sat, opacity });
-}
+crearEstrellas();
 
-var frameNumber = 0;
-var opacity = 0;
-var secondOpacity = 0;
-var thirdOpacity = 0;
+let frameNumber = 0;
 
-var baseFrame = context.getImageData(0, 0, window.innerWidth, window.innerHeight);
+// MENSAJES ESPECIALES PARA MI YULI
+const messages = [
+    [
+        "Mi amor Yuli, hoy quiero recordarte",
+        "lo mucho que te amo ❤️"
+    ],
+    [
+        "Desde que llegaste a mi vida,",
+        "mis dias son mucho mas bonitos"
+    ],
+    [
+        "Tal vez no somos perfectos,",
+        "pero cada dia aprendemos juntos"
+    ],
+    [
+        "Siento que vamos por un buen camino,",
+        "lleno de amor, paciencia y confianza"
+    ],
+    [
+        "Quiero seguir construyendo contigo",
+        "una historia hermosa y verdadera"
+    ],
+    [
+        "Y aunque vengan dias dificiles,",
+        "quiero seguir eligiendote siempre"
+    ],
+    [
+        "Gracias por hacerme tan feliz,",
+        "por tus sonrisas y por tu amor"
+    ],
+    [
+        "15 DE OCTUBRE ❤️",
+        "Te amo muchisimo, mi Yuli hermosa"
+    ]
+];
 
+// TIEMPO DE CADA MENSAJE
+const framesPerMessage = 400;
+
+// DIBUJAR LAS ESTRELLAS
 function drawStars() {
-    for (var i = 0; i < stars; i++) {
-        var star = starArray[i];
+    starArray.forEach(star => {
+        if (Math.random() > 0.99) {
+            star.opacity = Math.random();
+        }
 
         context.beginPath();
-        context.arc(star.x, star.y, star.radius, 0, 360);
-        context.fillStyle = "hsla(" + star.hue + ", " + star.sat + "%, 88%, " + star.opacity + ")";
+        context.arc(
+            star.x,
+            star.y,
+            star.radius,
+            0,
+            Math.PI * 2
+        );
+
+        context.fillStyle =
+            `hsla(${star.hue}, ${star.sat}%, 88%, ${star.opacity})`;
+
         context.fill();
-    }
-}
-
-function updateStars() {
-    for (var i = 0; i < stars; i++) {
-        if (Math.random() > 0.99) {
-            starArray[i].opacity = Math.random();
-        }
-    }
-}
-
-const button = document.getElementById("valentinesButton");
-
-button.addEventListener("click", () => {
-  if (button.textContent === "Click Me! ❤") {
-    button.textContent = "loading...";
-    fetch('send_mail.php')
-      .then(response => {
-        if (response.ok) {
-          button.textContent = "Check Your Email 🙃";
-        } else {
-          console.error('Failed to send email');
-          button.textContent = "Error 😞";
-        }
-      })
-      .catch(error => {
-        // Handle network errors or other issues
-        console.error('Error:', error);
-        button.textContent = "Error 😞";
-      });
-  }
-});
-
-function drawTextWithLineBreaks(lines, x, y, fontSize, lineHeight) {
-    lines.forEach((line, index) => {
-        context.fillText(line, x, y + index * (fontSize + lineHeight));
     });
 }
 
-function drawText() {
-    var fontSize = Math.min(30, window.innerWidth / 24); // Adjust font size based on screen width
-    var lineHeight = 8;
+// DIBUJAR MENSAJES ROMANTICOS
+function drawMessage(lines, alpha, yOffset = 0) {
+    const fontSize = Math.min(
+        30,
+        window.innerWidth / 17
+    );
 
-    context.font = fontSize + "px Comic Sans MS";
+    context.font = `${fontSize}px Comic Sans MS`;
     context.textAlign = "center";
-    
-    // glow effect
-    context.shadowColor = "rgba(45, 45, 255, 1)";
-    context.shadowBlur = 8;
-    context.shadowOffsetX = 0;
-    context.shadowOffsetY = 0;
+    context.textBaseline = "middle";
 
-    if(frameNumber < 250){
-        context.fillStyle = `rgba(45, 45, 255, ${opacity})`;
-        context.fillText("everyday day I cannot believe how lucky I am", canvas.width/2, canvas.height/2);
-        opacity = opacity + 0.01;
-    }
-    //fades out the text by decreasing the opacity
-    if(frameNumber >= 250 && frameNumber < 500){
-        context.fillStyle = `rgba(45, 45, 255, ${opacity})`;
-        context.fillText("everyday day I cannot believe how lucky I am", canvas.width/2, canvas.height/2);
-        opacity = opacity - 0.01;
-    }
+    // EFECTO DE BRILLO ROSADO
+    context.shadowColor = "rgba(255, 70, 150, 1)";
+    context.shadowBlur = 14;
 
-    //needs this if statement to reset the opacity before next statement on canvas
-    if(frameNumber == 500){
-        opacity = 0;
-    }
-    if(frameNumber > 500 && frameNumber < 750){
-        context.fillStyle = `rgba(45, 45, 255, ${opacity})`;
+    context.fillStyle =
+        `rgba(255, 175, 210, ${alpha})`;
 
-        if (window.innerWidth < 600) {           //shortens long sentence for mobile screens
-            drawTextWithLineBreaks(["amongst trillions and trillions of stars,", "over billions of years"], canvas.width / 2, canvas.height / 2, fontSize, lineHeight);
-        } else {
-            context.fillText("amongst trillions and trillions of stars, over billions of years", canvas.width/2, canvas.height/2);
-        }
+    const lineHeight = fontSize * 1.65;
 
-        opacity = opacity + 0.01;
-    }
-    if(frameNumber >= 750 && frameNumber < 1000){
-        context.fillStyle = `rgba(45, 45, 255, ${opacity})`;
-        
-        if (window.innerWidth < 600) {
-            drawTextWithLineBreaks(["amongst trillions and trillions of stars,", "over billions of years"], canvas.width / 2, canvas.height / 2, fontSize, lineHeight);
-        } else {
-            context.fillText("amongst trillions and trillions of stars, over billions of years", canvas.width/2, canvas.height/2);
-        }
+    const startY =
+        canvas.height / 2 -
+        ((lines.length - 1) * lineHeight / 2) +
+        yOffset;
 
-        opacity = opacity - 0.01;
-    }
+    lines.forEach((line, index) => {
+        context.fillText(
+            line,
+            canvas.width / 2,
+            startY + index * lineHeight,
+            canvas.width * 0.92
+        );
+    });
 
-    if(frameNumber == 1000){
-        opacity = 0;
-    }
-    if(frameNumber > 1000 && frameNumber < 1250){
-        context.fillStyle = `rgba(45, 45, 255, ${opacity})`;
-        context.fillText("to be alive, and to get to spend this life with you", canvas.width/2, canvas.height/2);
-        opacity = opacity + 0.01;
-    }
-    if(frameNumber >= 1250 && frameNumber < 1500){
-        context.fillStyle = `rgba(45, 45, 255, ${opacity})`;
-        context.fillText("to be alive, and to get to spend this life with you", canvas.width/2, canvas.height/2);
-        opacity = opacity - 0.01;
-    }
-
-    if(frameNumber == 1500){
-        opacity = 0;
-    }
-    if(frameNumber > 1500 && frameNumber < 1750){
-        context.fillStyle = `rgba(45, 45, 255, ${opacity})`;
-        context.fillText("is so incredibly, unfathomably unlikely", canvas.width/2, canvas.height/2);
-        opacity = opacity + 0.01;
-    }
-    if(frameNumber >= 1750 && frameNumber < 2000){
-        context.fillStyle = `rgba(45, 45, 255, ${opacity})`;
-        context.fillText("is so incredibly, unfathomably unlikely", canvas.width/2, canvas.height/2);
-        opacity = opacity - 0.01;
-    }
-
-    if(frameNumber == 2000){
-        opacity = 0;
-    }
-    if(frameNumber > 2000 && frameNumber < 2250){
-        context.fillStyle = `rgba(45, 45, 255, ${opacity})`;
-
-        if (window.innerWidth < 600) {
-            drawTextWithLineBreaks(["and yet here I am to get the impossible", "chance to get to know you"], canvas.width / 2, canvas.height / 2, fontSize, lineHeight);
-        } else {
-            context.fillText("and yet here I am to get the impossible chance to get to know you", canvas.width/2, canvas.height/2);
-        }
-
-        opacity = opacity + 0.01;
-    }
-    if(frameNumber >= 2250 && frameNumber < 2500){
-        context.fillStyle = `rgba(45, 45, 255, ${opacity})`;
-
-        if (window.innerWidth < 600) {
-            drawTextWithLineBreaks(["and yet here I am to get the impossible", "chance to get to know you"], canvas.width / 2, canvas.height / 2, fontSize, lineHeight);
-        } else {
-            context.fillText("and yet here I am to get the impossible chance to get to know you", canvas.width/2, canvas.height/2);
-        }
-        
-        opacity = opacity - 0.01;
-    }
-
-    if(frameNumber == 2500){
-        opacity = 0;
-    }
-    if(frameNumber > 2500 && frameNumber < 99999){
-        context.fillStyle = `rgba(45, 45, 255, ${opacity})`;
-
-        if (window.innerWidth < 600) {
-            drawTextWithLineBreaks(["I love you so much {name}, more than", "all the time and space in the universe can contain"], canvas.width / 2, canvas.height / 2, fontSize, lineHeight);
-        } else {
-            context.fillText("I love you so much {name}, more than all the time and space in the universe can contain", canvas.width/2, canvas.height/2);
-        }
-
-        opacity = opacity + 0.01;
-    }
-    
-    if(frameNumber >= 2750 && frameNumber < 99999){
-        context.fillStyle = `rgba(45, 45, 255, ${secondOpacity})`;
-
-
-        if (window.innerWidth < 600) {
-            drawTextWithLineBreaks(["and I can't wait to spend all the time in", "the world to share that love with you!"], canvas.width / 2, (canvas.height/2 + 60), fontSize, lineHeight);
-        } else {
-            context.fillText("and I can't wait to spend all the time in the world to share that love with you!", canvas.width/2, (canvas.height/2 + 50));
-        }
-
-        secondOpacity = secondOpacity + 0.01;
-    }
-
-    if(frameNumber >= 3000 && frameNumber < 99999){
-        context.fillStyle = `rgba(45, 45, 255, ${thirdOpacity})`;
-        context.fillText("Happy Valentine's Day <3", canvas.width/2, (canvas.height/2 + 120));
-        thirdOpacity = thirdOpacity + 0.01;
-
-        button.style.display = "block";
-    }   
-
-     // Reset the shadow effect after drawing the text
-     context.shadowColor = "transparent";
-     context.shadowBlur = 0;
-     context.shadowOffsetX = 0;
-     context.shadowOffsetY = 0;
+    context.shadowBlur = 0;
 }
 
+// ANIMACION DE LOS MENSAJES
+function drawText() {
+    const index = Math.floor(
+        frameNumber / framesPerMessage
+    );
+
+    if (index < messages.length) {
+        const progress =
+            frameNumber % framesPerMessage;
+
+        let alpha = 1;
+
+        // APARECER SUAVEMENTE
+        if (progress < 100) {
+            alpha = progress / 100;
+        }
+
+        // DESAPARECER SUAVEMENTE
+        else if (progress > 300) {
+            alpha =
+                (framesPerMessage - progress) / 100;
+        }
+
+        drawMessage(
+            messages[index],
+            Math.max(0, alpha)
+        );
+
+    } else {
+
+        // MENSAJE FINAL PERMANENTE
+        drawMessage(
+            [
+                "Yuli, eres mi eleccion de cada dia ❤️",
+                "Te amo, mi Yuli hermosa ♾️"
+            ],
+            1,
+            -45
+        );
+
+        // MOSTRAR BOTON SORPRESA
+        if (button) {
+            button.style.display = "block";
+            button.textContent =
+                "Una sorpresa para ti ❤️";
+        }
+    }
+}
+
+// SORPRESA FINAL PARA YULI
+if (button) {
+    button.style.display = "none";
+
+    button.addEventListener("click", () => {
+        alert(
+            "Mi amor Yuli ❤️\n\n" +
+            "Gracias por estar en mi vida y " +
+            "por seguir construyendo esta " +
+            "historia tan bonita conmigo.\n\n" +
+            "Se que vamos por un buen camino " +
+            "y quiero seguir caminando " +
+            "juntito a ti.\n\n" +
+            "Quiero cuidarte, respetarte, " +
+            "comprenderte y seguir " +
+            "eligiendote todos los dias.\n\n" +
+            "Te amo con todo mi corazon, " +
+            "mi Yuli hermosa. ❤️♾️"
+        );
+    });
+}
+
+// ANIMACION PRINCIPAL
 function draw() {
-    context.putImageData(baseFrame, 0, 0);
+    context.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
 
     drawStars();
-    updateStars();
     drawText();
 
-    if (frameNumber < 99999) {
-        frameNumber++;
-    }
+    frameNumber++;
+
     window.requestAnimationFrame(draw);
 }
 
-window.addEventListener("resize", function () {
+// ADAPTACION A CELULARES Y COMPUTADORAS
+window.addEventListener("resize", () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    baseFrame = context.getImageData(0, 0, window.innerWidth, window.innerHeight);
+
+    crearEstrellas();
 });
 
+// INICIAR ANIMACION
 window.requestAnimationFrame(draw);
